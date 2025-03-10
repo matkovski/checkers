@@ -1,0 +1,12 @@
+{
+    "workbench.colorCustomizations": {
+        "statusBar.background": "#a758a6",
+        "statusBar.foreground": "#fffffff0"
+    },
+    "typescript.tsdk": "web\\node_modules\\typescript\\lib",
+    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBrackets": false,
+    "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": false,
+    "debug.javascript.warnOnLongPrediction": false,
+    "workbench.editor.empty.hint": "text",
+    "editor.hover.enabled": false
+}
