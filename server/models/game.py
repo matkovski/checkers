@@ -8,7 +8,6 @@ class Game(BaseModel):
 
     def __init__(self, position: Position = None):
         self.positions = [position if position else Position.start()]
-        pass
 
     @property
     def turn(self):
