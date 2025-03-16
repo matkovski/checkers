@@ -4,13 +4,13 @@ from fastapi import APIRouter, Header
 from models.user import UserIn, UserOut
 from models.login import Login
 from models.error import Error
-from services.authservice import authservice
+from services.authservice import auth
 
 router = APIRouter(prefix = '/api/auth')
 
 @router.get('/shake', response_model = Union[UserOut, Error])
 async def shake(token: Annotated[str, Header(alias = 'x-token')] = None):
-    user = await authservice.findsession(token)
+    user = await auth.findsession(token)
 
     if user:
         return user
@@ -19,7 +19,7 @@ async def shake(token: Annotated[str, Header(alias = 'x-token')] = None):
 
 @router.post('/login', response_model = Union[str, Error])
 async def login(login: Login):
-    token = await authservice.login(login.login, login.pwd)
+    token = await auth.login(login.login, login.pwd)
 
     if token:
         return token
@@ -28,7 +28,7 @@ async def login(login: Login):
 
 @router.post('/register', response_model = Union[UserOut, Error])
 async def register(userin: UserIn):
-    user = await authservice.register(userin)
+    user = await auth.register(userin)
 
     if user:
         return user
@@ -37,7 +37,7 @@ async def register(userin: UserIn):
 
 @router.get('/confirm', response_model = Union[UserOut, Error])
 async def confirm(code: str):
-    user = await authservice.confirm(code)
+    user = await auth.confirm(code)
 
     if user:
         return user
@@ -46,6 +46,6 @@ async def confirm(code: str):
 
 @router.get('/logout', response_model = bool)
 async def logout(token: Annotated[str, Header(alias = 'x-token')] = None):
-    ok = await authservice.logout(token)
+    ok = await auth.logout(token)
 
     return ok

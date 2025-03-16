@@ -1,19 +1,18 @@
+from hashlib import md5
+
 from asyncio import sleep
 from time import time
 from random import randint
 
 from models.user import UserIn, User
-
-# TODO performance is probably bad, use dicts for users and sessions
-# TODO use a database, too
+from .dbservice import db
 
 class AuthService:
     def __init__(self):
         self._sessions = []
-        self._users = []
 
     async def findsession(self, token: str, refresh: bool = True):
-        self.cleanup()
+        self._cleanup()
         for s in self._sessions:
             if s['token'] == token:
                 if refresh:
@@ -23,67 +22,61 @@ class AuthService:
         return None
     
     async def register(self, user: UserIn):
-        self.cleanup()
+        self._cleanup()
 
-        # TODO plaintext password
-        if any(u.pwd == user.pwd for u in self._users):
+        already = db.query('select * from users where login=?', (user.login,))
+        if already:
             # TODO raise something good
             return None
         
+        (id) = db.row('select max(id) from users')
+
         created = User(
-            id = 1 if not len(self._users) else max(u.id for u in self._users) + 1,
+            id = id + 1 if id else 1,
             login = user.login,
             pwd = user.pwd,
             code = str(randint(10000000000000, 100000000000000))
         )
-        self._users.append(created)
+
+        db.query('insert into users (id, login, pwd, code) values (?, ?, ?, ?)', (created.id, created.login, created.pwd, created.code))
         return created
     
     async def confirm(self, code: str):
         # TODO this probably should also use user id or login, just in case
-        self.cleanup()
+        self._cleanup()
 
-        user = next((u for u in self._users if u.code == code), None)
-
+        user = db.row('select * from users where code = ?', (code,))
         if not user:
-            print(self._users)
             return None
-        
-        user.code = None
+
+        db.run('update users set code='' where id=?', (user.id,))
         return user
 
     async def login(self, login: str, pwd: str):
-        self.cleanup()
+        self._cleanup()
 
         session = next((s for s in self._sessions if s['user'].login == login), None)
 
         if session and not session['user'].code:
             return session['token']
         
-        for u in self._users:
-            if u.login == login:
-                if u.pwd == pwd:
-                    user = next((u for u in self._users if u.login == login), None)
-                    token = str(randint(10000000000000, 100000000000000))
-                    if not user:
-                        # raise something good
-                        return None
-                    if user.code:
-                        # raise something here too
-                        return None
-                    self._sessions.append({
-                        'expires': time() + 24 * 3600 * 1000,
-                        'token': token,
-                        'user': user
-                    })
-                    return token
-                else:
-                    return None
-        
-        return None
+        user = db.row('select * from users where login = ?', (login,))
+        if not user or user.code:
+            return None
+
+        if user.pwd != self._encodepwd(pwd):
+            return None
+
+        token = str(randint(10000000000000, 100000000000000))
+        self._sessions.append({
+            'expires': time() + 24 * 3600 * 1000,
+            'token': token,
+            'user': user
+        })
+        return token
 
     async def logout(self, token: str):
-        self.cleanup()
+        self._cleanup()
 
         session = next((s for s in self._sessions if s['token'] == token), None)
         if not session:
@@ -92,10 +85,13 @@ class AuthService:
         self._sessions.remove(session)
         return True
     
-    async def cleanup(self):
+    async def _cleanup(self):
         now = time()
         self._sessions = [s for s in self._sessions if s['expires'] < now]
         await sleep(10)
         yield True
+    
+    async def _encodepwd(self, pwd: str):
+        return md5(pwd.encode('utf-8')).hexdigest()
 
-authservice = AuthService()
+auth = AuthService()

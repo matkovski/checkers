@@ -2,9 +2,16 @@ from pydantic import BaseModel
 
 from .position import Position
 from .move import Move
+from .user import UserOut
 
 class Game(BaseModel):
+    white: str
+    black: str
     positions: list[Position]
+
+    @classmethod
+    def create(self, white: UserOut, black: UserOut, moves: str):
+        return Game()
 
     def __init__(self, position: Position = None):
         self.positions = [position if position else Position.start()]

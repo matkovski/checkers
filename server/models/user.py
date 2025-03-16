@@ -7,7 +7,6 @@ class UserIn(BaseModel):
 class UserOut(BaseModel):
     id: int
     login: str
-    code: str | None
 
 class User(BaseModel):
     id: int
