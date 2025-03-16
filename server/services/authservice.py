@@ -34,7 +34,6 @@ class AuthService:
             id = 1 if not len(self._users) else max(u.id for u in self._users) + 1,
             login = user.login,
             pwd = user.pwd,
-            name = user.name,
             code = str(randint(10000000000000, 100000000000000))
         )
         self._users.append(created)
@@ -59,7 +58,7 @@ class AuthService:
         session = next((s for s in self._sessions if s['user'].login == login), None)
 
         if session and not session['user'].code:
-            return session
+            return session['token']
         
         for u in self._users:
             if u.login == login:
