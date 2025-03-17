@@ -1,8 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+
 @import "./css/login.css";
 @import "./css/index.css";
 
 :root {
-    font-family: "Tiny5", sans-serif;
+    --font: "DotGothic16";
+
+    font-family: var(--font), sans-serif;
     font-weight: 400;
     font-style: normal;
 
