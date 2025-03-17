@@ -10,7 +10,7 @@ form.login {
         border: 0.2em solid black;
         border-radius: 0;
         padding: 0.4em 0.8em;
-        font-family: "Tiny5", sans-serif;
+        font-family: var(--font), sans-serif;
         font-size: 1.5em;
     }
 
@@ -19,7 +19,7 @@ form.login {
         color: white;
         padding: 0.4em 2em;
         font-size: 1.5em;
-        font-family: "Tiny5", sans-serif;
+        font-family: var(--font), sans-serif;
         border: 0;
         margin: 0 0.2em 1em 0.2em;
     }
