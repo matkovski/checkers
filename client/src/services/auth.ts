@@ -45,12 +45,8 @@ class Auth {
     }
 
     public async register(login, pwd) {
-        let user = await post('/auth/register', { login, pwd });
-        if (user) {
-            return user.code;
-        }
-
-        return undefined;
+        let code = await post('/auth/register', { login, pwd });
+        return code || undefined;
     }
 
     public async confirm(code) {

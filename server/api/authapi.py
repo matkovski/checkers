@@ -26,12 +26,12 @@ async def login(login: Login):
     
     return Error(errors = ['user not found'])
 
-@router.post('/register', response_model = Union[UserOut, Error])
+@router.post('/register', response_model = Union[str, Error])
 async def register(userin: UserIn):
     user = await auth.register(userin)
 
     if user:
-        return user
+        return user.code
 
     return Error(errors = ['could not register'])
 

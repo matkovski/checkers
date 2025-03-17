@@ -2,28 +2,39 @@ import sqlite3
 
 class DbService:
     def __init__(self):
-        self.con = sqlite3.connect("data/games.db")
-        self.cursor = self.con.cursor()
+        self.con = sqlite3.connect("data/checkers.db")
 
         self.initialise()
     
     def initialise(self):
+        cursor = self.con.cursor()
+
         try:
-            self.cursor.execute('select count(*) from games')
+            cursor.execute('select count(*) from games')
         except:
-            self.cursor.execute('create table games (id, white, black, end, moves)')
-            self.cursor.execute('create table users (id, login, pwd, code)')
+            cursor.execute('create table games (id, white, black, end, moves)')
+            cursor.execute('create table users (id, login, pwd, code)')
+        
+        cursor.close()
 
     def query(self, sql, params = None):
-        res = self.cursor.execute(sql, params)
-        return res.fetchall()
+        cursor = self.con.cursor()
+        res = cursor.execute(sql, params)
+        data = res.fetchall()
+        cursor.close()
+        return data
 
     def row(self, sql, params = None):
-        res = self.cursor.execute(sql, params)
-        return res.fetchone()
+        cursor = self.con.cursor()
+        res = cursor.execute(sql, params)
+        data = res.fetchone()
+        cursor.close()
+        return data
     
     def run(self, sql, params = None):
-        self.cursor.execute(sql, params)
+        cursor = self.con.cursor()
+        cursor.execute(sql, params)
         self.con.commit()
+        cursor.close()
 
 db = DbService()
