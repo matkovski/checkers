@@ -26,8 +26,10 @@ class Game(BaseModel):
             positions = positions,
         )
 
-    def __init__(self, position: Position = None):
-        self.positions = [position if position else Position.start()]
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        if not self.positions:
+            self.positions = [Position.start()]
 
     @property
     def turn(self):

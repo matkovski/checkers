@@ -12,8 +12,9 @@ class DbService:
         try:
             cursor.execute('select count(*) from games')
         except:
-            cursor.execute('create table games (id int, white int, black int, end char(1), moves text)')
-            cursor.execute('create table users (id int, login varchar(100), pwd varchar(100), code varchar(100))')
+            cursor.execute('create table sessions (id str primary key, userid integer, expires float)')
+            cursor.execute('create table users (id integer primary key, login varchar(100), pwd varchar(100), code varchar(100))')
+            cursor.execute('create table games (id integer primary key, white integer, black integer, end char(1), moves text)')
         
         cursor.close()
 
@@ -26,7 +27,7 @@ class DbService:
 
     def row(self, sql, params = None):
         cursor = self.con.cursor()
-        res = cursor.execute(sql, params)
+        res = cursor.execute(sql, params or {})
         data = res.fetchone()
         cursor.close()
         return data

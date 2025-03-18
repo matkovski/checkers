@@ -8,18 +8,24 @@ from models.user import UserIn, User, UserOut
 from .dbservice import db
 
 class AuthService:
-    def __init__(self):
-        self._sessions = []
-
     async def findsession(self, token: str, refresh: bool = True):
         self._cleanup()
-        for s in self._sessions:
-            if s['token'] == token:
-                if refresh:
-                    s['expires'] = time() + 24 * 3600 * 1000
-                return s['user']
+        session = db.row('select id, userid, expires from sessions where id=:id', {'id': token})
+        if not session:
+            return None
         
-        return None
+        if session[2] < time():
+            db.run('delete from sessions where id=:id', {'id': token})
+            return None
+        
+        db.run('update sessions set expires=:time where id=:id', {'id': token, 'time': time() + 24 * 3600 * 1000})
+
+        user = db.row('select * from users where id=:id', {'id': session[1]})
+        if not user:
+            db.run('delete from sessions where id=:id', {'id': token})
+            return None
+        
+        return User.make(user)
     
     async def register(self, user: UserIn):
         self._cleanup()
@@ -32,7 +38,7 @@ class AuthService:
         id = db.row('select max(id) from users')
 
         created = User(
-            id = id[0] + 1 if id else 1,
+            id = id[0] + 1 if id and id[0] else 1,
             login = user.login,
             pwd = user.pwd,
             code = str(randint(10000000000000, 100000000000000))
@@ -55,57 +61,49 @@ class AuthService:
             return None
 
         db.run('update users set code="" where id=:id', {'id': user[0]})
-        return UserOut(
-            id = user[0],
-            login = user[1]
-        )
+        
+        return UserOut.make(user)
 
     async def login(self, login: str, pwd: str):
         self._cleanup()
 
-        session = next((s for s in self._sessions if s['user'].login == login), None)
-
-        if session and not session['user'].code:
-            return session['token']
-        
         user = db.row('select * from users where login=:login', {'login': login})
         if not user or user[3]:
             return None
-
+        
         if user[2] != self._encodepwd(pwd):
             return None
 
-        user = User(
-            id = user[0],
-            login = user[1],
-            pwd = user[2],
-            code = ''
-        )
+        user = User.make(user)
+        session = db.row('select * from sessions where userid=:id', {'id': user.id})
+
+        if session:
+            return session[0]
+
         token = str(randint(10000000000000, 100000000000000))
-        self._sessions.append({
+        db.run('insert into sessions (id, userid, expires) values (:id, :userid, :expires)', {
+            'id': token,
+            'userid': user.id,
             'expires': time() + 24 * 3600 * 1000,
-            'token': token,
-            'user': user
         })
+
         return token
 
     async def logout(self, token: str):
         self._cleanup()
 
-        session = next((s for s in self._sessions if s['token'] == token), None)
+        session = db.row('select * from sessions where id=:id', {'id': token})
         if not session:
             return False
         
-        self._sessions.remove(session)
+        db.run('delete from sessions where id=:id', {'id': token})
         return True
     
-    async def _cleanup(self):
-        now = time()
-        self._sessions = [s for s in self._sessions if s['expires'] < now]
-        await sleep(10)
-        yield True
+    def _cleanup(self):
+        db.run('delete from sessions where expires<:time', {'time': time()})
     
     def _encodepwd(self, pwd: str):
         return md5(pwd.encode('utf-8')).hexdigest()
 
 auth = AuthService()
+

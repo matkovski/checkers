@@ -14,13 +14,13 @@ def steps(x, y, dx, dy):
 
 class Position(BaseModel):
     move: Move = None
-    field: list[list[Piece]] = []
     turn: Color = 'w'
+    _field: list[list[Piece]] = []
 
     @classmethod
-    def start():
+    def start(self):
         position = Position()
-        position.field = [
+        position._field = [
             ['-', 'c', '-', 'c', '-', 'c', '-', 'c'],
             ['c', '-', 'c', '-', 'c', '-', 'c', '-'],
             ['-', 'c', '-', 'c', '-', 'c', '-', 'c'],
@@ -47,9 +47,9 @@ class Position(BaseModel):
         child = Position()
 
         child.move = move
-        child.field = [row[:] for row in self.field]
-        child.field[move.srcy][move.srcx] = '-'
-        child.field[move.dsty][move.dstx] = move.piece
+        child._field = [row[:] for row in self._field]
+        child._field[move.srcy][move.srcx] = '-'
+        child._field[move.dsty][move.dstx] = move.piece
         # TODO taking
 
         if last:
