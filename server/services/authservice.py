@@ -29,12 +29,10 @@ class AuthService:
             # TODO raise something good
             return None
         
-        # result = db.row('select max(id) as maxid from users')
-        # print(result)
-        id = 0
+        id = db.row('select max(id) from users')
 
         created = User(
-            id = id + 1 if id else 1,
+            id = id[0] + 1 if id else 1,
             login = user.login,
             pwd = user.pwd,
             code = str(randint(10000000000000, 100000000000000))

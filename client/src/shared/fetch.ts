@@ -13,7 +13,7 @@ async function fettch(method, url, body: any = undefined) {
     });
 
     return await rq.json().then(data => {
-        if (typeof data === 'object' && 'errors' in data) {
+        if (typeof data === 'object' && data && 'errors' in data) {
             console.error('API SAID NO:', data.errors)
         } else {
             return data;
@@ -23,3 +23,6 @@ async function fettch(method, url, body: any = undefined) {
 
 export let get = fettch.bind(undefined, 'GET');
 export let post = fettch.bind(undefined, 'POST');
+
+window['gg'] = get;
+window['pp'] = post;

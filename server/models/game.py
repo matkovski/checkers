@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from json import loads
 
 from .position import Position
 from .move import Move
@@ -10,8 +11,20 @@ class Game(BaseModel):
     positions: list[Position]
 
     @classmethod
-    def create(self, white: UserOut, black: UserOut, moves: str):
-        return Game()
+    def create(self, white: UserOut | None = None, black: UserOut | None = None, moves: str | None = None):
+        moves = loads(moves) if moves else []
+        position = Position.start()
+
+        positions = [position]
+        for mv in moves:
+            position = position.move(Move(**mv))
+            positions.append(position)
+        
+        return Game(
+            white = white.login if white else '',
+            black = black.login if black else '',
+            positions = positions,
+        )
 
     def __init__(self, position: Position = None):
         self.positions = [position if position else Position.start()]
