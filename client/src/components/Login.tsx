@@ -10,6 +10,10 @@ export default function() {
     let [confirmed, setConfirmed] = useState(false);
 
     async function signin(e) {
+        setError(false);
+        setConfirmed(false);
+        setCode('');
+        
         e.preventDefault();
         let ok = await auth.login(login, pwd);
         if (ok === error) {
@@ -18,6 +22,10 @@ export default function() {
     }
 
     async function register(e) {
+        setError(false);
+        setConfirmed(false);
+        setCode('');
+
         e.preventDefault();
 
         let inCode = await auth.register(login, pwd);
