@@ -24,12 +24,8 @@ class Position(BaseModel):
             ['-', 'c', '-', 'c', '-', 'c', '-', 'c'],
             ['c', '-', 'c', '-', 'c', '-', 'c', '-'],
             ['-', 'c', '-', 'c', '-', 'c', '-', 'c'],
-            ['c', '-', 'c', '-', 'c', '-', 'c', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
             ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', '-', '-', '-', '-', '-', '-', '-'],
-            ['-', 'C', '-', 'C', '-', 'C', '-', 'C'],
             ['C', '-', 'C', '-', 'C', '-', 'C', '-'],
             ['-', 'C', '-', 'C', '-', 'C', '-', 'C'],
             ['C', '-', 'C', '-', 'C', '-', 'C', '-'],
@@ -37,23 +33,26 @@ class Position(BaseModel):
         position.turn = 'w'
         return position
 
-    def allpossiblemoves(self):
+    def children(self):
         yield (1, 1)
 
+    def board(self):
+        return self._field
 
-    def move(self, move: Move, last: bool):
-        # TODO check against allpossiblemoves
+
+    def move(self, move: Move):
+        # TODO check against children
         
         child = Position()
 
         child.move = move
+        child.turn = 'w' if self.turn == 'b' else 'b'
         child._field = [row[:] for row in self._field]
-        child._field[move.srcy][move.srcx] = '-'
-        child._field[move.dsty][move.dstx] = move.piece
-        # TODO taking
+        for mv in move.movements:
+            child._field[mv.srcy][mv.srcx] = '-'
+            child._field[mv.dsty][mv.dstx] = mv.piece
+            # TODO taking
 
-        if last:
-            child.turn = 'w' if self.turn == 'b' else 'b'
 
         return child
 

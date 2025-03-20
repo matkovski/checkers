@@ -2,6 +2,7 @@
 
 @import "./css/login.css";
 @import "./css/index.css";
+@import "./css/board.css";
 
 :root {
     --font: "DotGothic16";

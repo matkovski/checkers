@@ -1,5 +1,7 @@
 import {get, post} from '../shared/fetch';
 
+import Game from '../models/game';
+
 class Games {
     public async pickup() {
         let game = await get('/game/pickup');
@@ -7,7 +9,7 @@ class Games {
             console.log('what? no game?')
         }
 
-        return game;
+        return Game.parse(game);
     }
 }
 

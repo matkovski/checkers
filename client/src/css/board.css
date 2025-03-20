@@ -1,0 +1,97 @@
+.board {
+    --black: #333;
+    --cell: 3em;
+
+    display: inline-block;
+    border: 0.2em solid var(--black);
+    position: relative;
+    border-radius: 0.4em;
+    overflow: hidden;
+
+    > div {
+        display: flex;
+        height: var(--cell);
+        width: calc(8 * var(--call));
+
+        > span {
+            flex: 1;
+            display: block;
+            width: var(--cell);
+            height: var(--cell);
+            position: relative;
+
+            &.odd {
+                background: var(--black);
+                color: white;
+                place-content: center;
+            }
+
+            &.even {
+                background: white;
+            }
+
+            > span {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: var(--cell);
+                height: var(--cell);
+                display: block;
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    left: 50%;
+                    top: 50%;
+                    transform: translate(-50%, -50%);
+                    display: inline-block;
+                    width: calc(var(--cell) / 2);
+                    height: calc(var(--cell) / 2);
+                    border-radius: 100%;
+                    border-width: 0.2em;
+                    border-style: solid;
+                }
+
+                &[data-piece='c'], &[data-piece='q'] {
+                    &::before {
+                        background-color: var(--black);
+                        border-color: white;
+                    }
+                }
+
+                &[data-piece='C'], &[data-piece='Q'] {
+                    &::before {
+                        background-color: white;
+                        border-color: transparent;
+                    }
+                }
+
+                &[data-piece="q"], &[data-piece="Q"] {
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        display: inline-block;
+                        width: calc(var(--cell) / 3);
+                        height: calc(var(--cell) / 3);
+                        border-radius: 100%;
+                        border-width: 0.2em;
+                        border-style: solid;
+                    }
+
+                    &[data-piece="q"]::after {
+                        background-color: white;
+                        border-color: var(--black);
+                    }
+
+                    &[data-piece="Q"]::after {
+                        background-color: var(--black);
+                        border-color: white;
+                    }
+                }
+            }
+        }
+    }
+}

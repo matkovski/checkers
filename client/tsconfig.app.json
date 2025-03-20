@@ -22,6 +22,7 @@
         "noUnusedParameters": false,
         "noFallthroughCasesInSwitch": false,
         "noUncheckedSideEffectImports": false,
+        "strictNullChecks": false,
     },
     "include": ["src"]
 }
