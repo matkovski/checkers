@@ -16,7 +16,7 @@ export default function Game({ game }) {
 
     let gameOn = game.white && game.black;
     let userToMove = game.turn === 'w' ? game.white : game.black;
-    let mymove = user.name === userToMove;
+    let mymove = user.login === userToMove;
 
     return (
         <>

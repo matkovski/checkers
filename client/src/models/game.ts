@@ -17,7 +17,7 @@ export default class Game {
 
     public get board() {
         let pos = this.positions[this.positions.length - 1];
-        return pos?.board || [];
+        return pos?.board.map(r => r.slice()) || [];
     }
 
     constructor(white?: string, black?: string, positions?: Position[]) {

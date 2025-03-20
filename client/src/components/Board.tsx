@@ -1,7 +1,14 @@
+import {useContext} from 'react';
+
+import {UserContext} from '../services/auth';
+
 export default function Board({ moving, game }) {
-    console.log(game);
+    let user = useContext(UserContext);
 
     let board = game.board;
+    if (game.black === user?.login) {
+        board = board.reverse().map(r => r.reverse());
+    }
 
     return (
         <div className="board">

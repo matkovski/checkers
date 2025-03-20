@@ -6,7 +6,32 @@
     border: 0.2em solid var(--black);
     position: relative;
     border-radius: 0.4em;
-    overflow: hidden;
+    margin-bottom: 1em;
+    margin-right: 1em;
+
+    &::before {
+        content: '';
+        display: block;
+        width: 100%;
+        left: 1em;
+        height: 1em;
+        background: var(--black);
+        position: absolute;
+        top: 100%;
+        border-radius: 0 0 0.4em 0.4em;
+    }
+
+    &::after {
+        content: '';
+        display: block;
+        width: 1em;
+        height: 100%;
+        top: 1em;
+        left: 100%;
+        background: var(--black);
+        position: absolute;
+        border-radius: 0 0.4em 0.4em 0;
+    }
 
     > div {
         display: flex;
