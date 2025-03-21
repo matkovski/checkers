@@ -1,11 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bungee&family=Bungee+Shade&display=swap');
 
-@import "./css/login.css";
 @import "./css/index.css";
 @import "./css/board.css";
+@import "./css/game.css";
+@import "./css/login.css";
 
 :root {
-    --font: "DotGothic16";
+    --font: "Bungee";
 
     font-family: var(--font), sans-serif;
     font-weight: 400;
