@@ -63,7 +63,12 @@
                 height: var(--cell);
                 display: block;
 
+                &.over {
+                    background: red !important;
+                }
+
                 &::before {
+                    z-index: 20;
                     content: '';
                     position: absolute;
                     left: 50%;
@@ -87,12 +92,15 @@
                 &[data-piece='C'], &[data-piece='Q'] {
                     &::before {
                         background-color: white;
-                        border-color: transparent;
+                        border-color: var(--black);
+                        width: calc(var(--cell) / 2 + 0.2em);
+                        height: calc(var(--cell) / 2 + 0.2em);
                     }
                 }
 
                 &[data-piece="q"], &[data-piece="Q"] {
                     &::after {
+                        z-index: 30;
                         content: '';
                         position: absolute;
                         left: 50%;

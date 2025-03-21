@@ -9,7 +9,7 @@ export class Movement {
     public take: Piece;
 
     public static parse(json) {
-        return new Movement(json.piece, json.srxs, json.srcy, json.dstx, json.dsty, json.take);
+        return new Movement(json.piece, json.srcx, json.srcy, json.dstx, json.dsty, json.take);
     }
 
     constructor(piece?: Piece, srcx?: number, srcy?: number, dstx?: number, dsty?: number, take?: Piece) {
@@ -20,9 +20,17 @@ export class Movement {
         this.dsty = dsty;
         this.take = take;
     }
+
+    public equals(other: Movement) {
+        if (!other) {
+            return false;
+        }
+
+        return this.piece === other.piece && this.srcx === other.srcx && this.srcy === other.srcy && this.dstx === other.dstx && this.dsty === other.dsty && this.take === other.take;
+    }
 }
 
-export default class Move {
+export class Move {
     public movements: Movement[] = [];
 
     public static parse(json) {
@@ -32,4 +40,14 @@ export default class Move {
     constructor(movements?: Movement[]) {
         this.movements = movements || []
     }
+
+    public equals(other: Move) {
+        if (!other || other.movements.length !== this.movements.length) {
+            return false;
+        }
+
+        return this.movements.every((mv, i) => mv.equals(other.movements[i]));
+    }
 }
+
+export default Move;

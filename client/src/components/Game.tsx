@@ -20,7 +20,7 @@ export default function Game({ game }) {
 
     return (
         <>
-            <Board moving={gameOn ? mymove : false} game={game}/>
+            <Board moving={gameOn ? mymove : false} game={game} onMove={console.log}/>
             {gameOn ? (
                 <div className="players">
                     <span className="white">{game.white}</span>

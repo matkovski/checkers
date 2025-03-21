@@ -15,9 +15,12 @@ export default class Game {
         }
     }
 
+    public get position() {
+        return this.positions[this.positions.length - 1];
+    }
+
     public get board() {
-        let pos = this.positions[this.positions.length - 1];
-        return pos?.board.map(r => r.slice()) || [];
+        return this.position.board.map(r => r.slice()) || [];
     }
 
     constructor(white?: string, black?: string, positions?: Position[]) {
@@ -28,14 +31,19 @@ export default class Game {
     }
 
     public get turn() {
-        let position = this.positions[this.positions.length - 1];
-        return position?.turn || undefined;
+        return this.position.turn;
     }
 
     public get ended() {
-        let position = this.positions[this.positions.length - 1];
+        return !!this.possibleMoves.length;
+    }
 
-        return position?.children || true;
+    public get possibleMoves() {
+        return this.position.children;
+    }
+
+    public pieceAt(x: number, y: number) {
+        return this.position.pieceAt(x, y);
     }
 
     public makeMove(moves: Move[]) {
