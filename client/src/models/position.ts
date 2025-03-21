@@ -75,17 +75,29 @@ export default class Position {
         if (x + dx < 0 || x + dx > 7 || y + dy < 0 || y + dy > 7) {
             return;
         }
+
         let pc = this.field[y][x];
         if ((pc === 'c' || pc === 'q') && this.turn === 'w' ||
             (pc === 'C' || pc === 'Q') && this.turn === 'b' ||
             (pc === 'c' && dy <= 0 || pc === 'C' && dy >= 0)) {
             return;
         }
+
+        let movements = [];
+
         if (this.field[y + dy][x + dx] === '-') {
-            return new Move([
-                new Movement(pc, x, y, x + dx, y + dy)
-            ]);
+            movements.push(new Movement(pc, x, y, x + dx, y + dy));
         }
+
+        if (pc === 'Q' || pc === 'q') {
+            for (let i = 2; ; i ++) {
+                if (this.field[y + dy * i][x + dx * i] === '-') {
+                    movements.push(new Movement(pc, x, y, x + dx * 1, y + dy * 1));
+                }
+            }
+        }
+
+        return new Move(movements);
     }
 }
 
