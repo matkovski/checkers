@@ -6,13 +6,14 @@ from .move import Move
 from .user import UserOut
 
 class Game(BaseModel):
+    id: str
     white: str
     black: str
     positions: list[Position]
     fen: str
 
     @classmethod
-    def create(self, white: UserOut | None = None, black: UserOut | None = None, moves: str | None = None):
+    def create(self, id: str, white: UserOut | None = None, black: UserOut | None = None, moves: str | None = None):
         moves = loads(moves) if moves else []
         position = Position.start()
 
@@ -22,6 +23,7 @@ class Game(BaseModel):
             positions.append(position)
         
         return Game(
+            id = id,
             white = white.login if white else '',
             black = black.login if black else '',
             positions = positions,

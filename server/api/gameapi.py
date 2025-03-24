@@ -3,54 +3,44 @@ from fastapi import APIRouter, Header
 from random import randint
 
 from models.game import Game
+from models.move import Move
 from models.error import Error
-from models.user import UserOut
 
 from services.authservice import auth as auth
-from services.dbservice import db
+from services.gameservice import games
 
 router = APIRouter(prefix = '/api/game')
 
-@router.get('/running', response_model=Union[Game | Error | None])
-async def running(token: Annotated[str, Header(alias = 'x-token')] = None):
-    user = await auth.findsession(token)
-    if not user:
-        return Error(errors = ['not authenticated'])
-    
-    game = db.row('select id, white, black, moves from games where white=:userid or black=:userid and end is null', {'userid': user.id})
-    if len(game):
-        white = db.row('select * from users where id=:id', {'id': game[1]})
-        black = db.row('select * from users where id=:id', {'id': game[2]})
-        return Game.create(UserOut(id=white[0], login=white[1]), UserOut(id=black[0], login=black[1]), game[2])
-    else:
-        return None
-
-@router.get('/pickup')
+@router.get('/pickup', response_model = Union[Game, Error])
 async def pickup(token: Annotated[str, Header(alias = 'x-token')] = None):
-    user = await auth.findsession(token)
+    user = await auth.finduser(token)
     if not user:
         return Error(errors = ['not authenticated'])
     
-    game = db.row('select id, white, black, moves from games where white=:userid or black=:userid and end is null', {'userid': user.id})
+    return await games.pickup(user)
+
+@router.post('/move', response_model = Union[Game, Error])
+async def pickup(move: Move, token: Annotated[str, Header(alias = 'x-token')] = None):
+    user = await auth.finduser(token)
+    if not user:
+        return Error(errors = ['not authenticated'])
+
+    game = await games.pickup(user)
     if not game:
-        game = db.row('select id, white, black, moves from games where (white is null or black is null) and white<>:userid and black<>:userid', {'userid': user.id})
-    if not game:
-        color = 'white' if randint(0, 1) else 'black'
-        id = db.row('select max(id) from games')
-        id = id[0] + 1 if id and id[0] else 1
-        db.run(f'insert into games (id, {color}) values (:id, :userid)', {
-            'id': id,
-            'userid': user.id,
-        })
-        game = db.row('select id, white, black, moves from games where id=:id', {'id': id})
+        return Error(errors = ['no running game'])
     
-    if game:
-        white = db.row('select * from users where id=:id', {'id': game[1]})
-        black = db.row('select * from users where id=:id', {'id': game[2]})
-        return Game.create(
-            white = UserOut(id=white[0], login=white[1]) if white else None,
-            black = UserOut(id=black[0], login=black[1]) if black else None,
-            moves = game[3]
-        )
-    else:
-        return None
+    if not game.white or not game.black:
+        return Error(errors = ['game not started, waiting for opponent'])
+    
+    if game.ended:
+        return Error(errors = ['game ended'])
+    
+    if game.white != user.login and game.black != user.login:
+        return Error(errors = ['it is not your game'])
+    
+    color = 'w' if game.white == user.login else 'b'
+
+    if game.turn != color:
+        return Error(errors = ['it is not your turn'])
+    
+    return games.move(game, move)

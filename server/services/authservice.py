@@ -8,7 +8,7 @@ from models.user import UserIn, User, UserOut
 from .dbservice import db
 
 class AuthService:
-    async def findsession(self, token: str, refresh: bool = True):
+    async def finduser(self, token: str, refresh: bool = True):
         self._cleanup()
         session = db.row('select id, userid, expires from sessions where id=:id', {'id': token})
         if not session:

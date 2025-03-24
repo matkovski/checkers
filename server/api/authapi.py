@@ -10,7 +10,7 @@ router = APIRouter(prefix = '/api/auth')
 
 @router.get('/shake', response_model = Union[UserOut, Error])
 async def shake(token: Annotated[str, Header(alias = 'x-token')] = None):
-    user = await auth.findsession(token)
+    user = await auth.finduser(token)
 
     if user:
         return user
