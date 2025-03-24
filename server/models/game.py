@@ -6,20 +6,22 @@ from .move import Move
 from .user import UserOut
 
 class Game(BaseModel):
-    id: str
+    id: int
     white: str
     black: str
     positions: list[Position]
     fen: str
 
     @classmethod
-    def create(self, id: str, white: UserOut | None = None, black: UserOut | None = None, moves: str | None = None):
+    def create(self, id: int, white: UserOut | None = None, black: UserOut | None = None, moves: str | None = None):
         moves = loads(moves) if moves else []
         position = Position.start()
+        print(f"WHAT {moves}")
 
-        positions = [position]
+        positions = []
         for mv in moves:
-            position = position.move(Move(**mv))
+            if mv:
+                position = position.makemove(Move(**mv))
             positions.append(position)
         
         return Game(
@@ -38,26 +40,38 @@ class Game(BaseModel):
         self._refreshfen()
 
     @property
-    def turn(self):
+    def position(self):
         if len(self.positions):
-            return self.positions[0].turn
-        else:
-            return None
+            return self.positions[0]
+        return None
+
+    @property
+    def turn(self):
+        return self.position.turn
 
     def ended(self):
-        pos = self.positions[-1] if len(self.positions) else None
+        return self.position.children()
 
-        if pos:
-            return len(pos.children())
-        else:
-            return False
+    # TODO we dont need both ended and end
+    @property
+    def end(self):
+        return ''
 
     def makemove(self, move: Move):
-        # TODO
-        self._refreshfen()
+        pos = self.position
+
+        next = pos.makemove(move)
+
+        return Game(
+            id = self.id,
+            white = self.white,
+            black = self.black,
+            positions = self.positions + [next],
+            fen = ''
+        )
 
     def _refreshfen(self):
-        pos = self.positions[-1]
+        pos = self.position
 
         if not pos:
             self.fen = '--------------------------------/w'

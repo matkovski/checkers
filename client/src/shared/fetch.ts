@@ -13,8 +13,9 @@ async function fettch(method, url, body: any = undefined) {
     });
 
     return await rq.json().then(data => {
-        if (typeof data === 'object' && data && 'errors' in data) {
-            console.error('API SAID NO:', data.errors)
+        if (typeof data === 'object' && data && ('errors' in data || 'detail' in data)) {
+            console.error('API SAID NO:', data.errors || data.detail);
+            return undefined;
         } else {
             return data;
         }

@@ -1,5 +1,13 @@
 .players {
     margin-top: 1rem;
+
+    span:first-child {
+        margin-right: 0.5em;
+    }
+
+    span:last-child {
+        margin-left: 0.5em;
+    }
 }
 
 .waiting {

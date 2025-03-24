@@ -20,7 +20,7 @@ async def pickup(token: Annotated[str, Header(alias = 'x-token')] = None):
     return await games.pickup(user)
 
 @router.post('/move', response_model = Union[Game, Error])
-async def pickup(move: Move, token: Annotated[str, Header(alias = 'x-token')] = None):
+async def move(move: Move, token: Annotated[str, Header(alias = 'x-token')] = None):
     user = await auth.finduser(token)
     if not user:
         return Error(errors = ['not authenticated'])
@@ -32,8 +32,8 @@ async def pickup(move: Move, token: Annotated[str, Header(alias = 'x-token')] = 
     if not game.white or not game.black:
         return Error(errors = ['game not started, waiting for opponent'])
     
-    if game.ended:
-        return Error(errors = ['game ended'])
+    if game.ended():
+        return Error(errors = ['game ended with ' + game.ended()])
     
     if game.white != user.login and game.black != user.login:
         return Error(errors = ['it is not your game'])
@@ -43,4 +43,4 @@ async def pickup(move: Move, token: Annotated[str, Header(alias = 'x-token')] = 
     if game.turn != color:
         return Error(errors = ['it is not your turn'])
     
-    return games.move(game, move)
+    return await games.makemove(game, move)

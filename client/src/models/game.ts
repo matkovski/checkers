@@ -9,8 +9,13 @@ export default class Game {
     static parse(json) {
         try {
             // debugger;
-            return new Game(json.white, json.black, json.positons?.map(pos => Position.parse(pos)) || []);
-        } catch {
+            // return new Game(json.white, json.black, json.positions?.map(pos => Position.parse(pos)) || []);
+            return json.positions.reduce((game, pos) => {
+                let move = Move.parse(pos.move);
+                return move ? game.makeMove(move) : game;
+            }, new Game(json.white, json.black));
+        } catch (e) {
+            console.log('ERROR:', e);
             return new Game();
         }
     }
@@ -46,8 +51,15 @@ export default class Game {
         return this.position.pieceAt(x, y);
     }
 
-    public makeMove(moves: Move[]) {
+    public makeMove(move: Move) {
+        let pos = this.position;
+        let next = pos.makeMove(move);
 
+        return new Game(
+            this.white,
+            this.black,
+            [...this.positions, next],
+        );
     }
 
     private refreshFen() {

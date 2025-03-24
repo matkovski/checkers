@@ -34,13 +34,13 @@ class Position(BaseModel):
         return position
 
     def children(self):
-        yield (1, 1)
+        # TODO
+        return []
 
     def board(self):
         return self._field
 
-
-    def move(self, move: Move):
+    def makemove(self, move: Move):
         # TODO check against children
         
         child = Position()

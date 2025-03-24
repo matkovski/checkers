@@ -7,7 +7,7 @@ export default function GameZone() {
     let [game, setGame] = useState(undefined);
 
     useEffect(() => {
-        games.pickup().then(game => {
+        games.onUpdate(game => {
             setGame(game);
         })
     }, [])

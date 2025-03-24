@@ -18,7 +18,7 @@ export class Movement {
         this.srcy = srcy;
         this.dstx = dstx;
         this.dsty = dsty;
-        this.take = take;
+        this.take = take ?? '-';
     }
 
     public equals(other: Movement) {
@@ -34,6 +34,9 @@ export class Move {
     public movements: Movement[] = [];
 
     public static parse(json) {
+        if (!json) {
+            return undefined;
+        }
         return new Move(json.movements.map(mv => Movement.parse(mv)));
     }
 

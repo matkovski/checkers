@@ -1,10 +1,12 @@
-import {useState, useContext} from 'react';
+import {useState, useContext, useRef} from 'react';
 
+import {games} from '../services/games';
 import {UserContext} from '../services/auth';
 import Board from './Board';
 
 export default function Game({ game }) {
     let user = useContext(UserContext);
+    let brd = useRef(null);
 
     if (!game) {
         return (
@@ -18,9 +20,16 @@ export default function Game({ game }) {
     let userToMove = game.turn === 'w' ? game.white : game.black;
     let mymove = user.login === userToMove;
 
+    async function makeMove(move) {
+        let ok = await games.makeMove(move);
+        // if (!ok) {
+        //     brd.current.reset();
+        // }
+    }
+
     return (
         <>
-            <Board moving={gameOn ? mymove : false} game={game} onMove={console.log}/>
+            <Board ref={brd} moving={gameOn ? mymove : false} game={game} onMove={makeMove}/>
             {gameOn ? (
                 <div className="players">
                     <span className="white">{game.white}</span>
