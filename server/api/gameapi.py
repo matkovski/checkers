@@ -1,5 +1,6 @@
 from typing import Annotated, Union
 from fastapi import APIRouter, Header
+from fastapi.responses import StreamingResponse
 from random import randint
 
 from models.game import Game
@@ -17,7 +18,7 @@ async def pickup(token: Annotated[str, Header(alias = 'x-token')] = None):
     if not user:
         return Error(errors = ['not authenticated'])
     
-    return await games.pickup(user)
+    return await games.pickup(user.login)
 
 @router.post('/move', response_model = Union[Game, Error])
 async def move(move: Move, token: Annotated[str, Header(alias = 'x-token')] = None):
@@ -25,7 +26,7 @@ async def move(move: Move, token: Annotated[str, Header(alias = 'x-token')] = No
     if not user:
         return Error(errors = ['not authenticated'])
 
-    game = await games.pickup(user)
+    game = await games.pickup(user.login)
     if not game:
         return Error(errors = ['no running game'])
     
@@ -41,6 +42,18 @@ async def move(move: Move, token: Annotated[str, Header(alias = 'x-token')] = No
     color = 'w' if game.white == user.login else 'b'
 
     if game.turn != color:
-        return Error(errors = ['it is not your turn'])
+        print("GAME")
+        print(game)
+        return Error(errors = [f'it is not your turn, you are {color} and the turn is {game.turn}'])
     
     return await games.makemove(game, move)
+
+@router.get('/events')
+async def events(token: str):
+    user = await auth.finduser(token)
+    if not user:
+        return Error(errors = ['not authenticated'])
+    
+    return StreamingResponse(games.listen(user.login), media_type="text/event-stream")
+
+

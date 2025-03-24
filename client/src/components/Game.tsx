@@ -6,7 +6,6 @@ import Board from './Board';
 
 export default function Game({ game }) {
     let user = useContext(UserContext);
-    let brd = useRef(null);
 
     if (!game) {
         return (
@@ -22,20 +21,22 @@ export default function Game({ game }) {
 
     async function makeMove(move) {
         let ok = await games.makeMove(move);
-        // if (!ok) {
-        //     brd.current.reset();
-        // }
     }
 
     return (
         <>
-            <Board ref={brd} moving={gameOn ? mymove : false} game={game} onMove={makeMove}/>
+            <Board moving={gameOn ? mymove : false} game={game} onMove={makeMove}/>
             {gameOn ? (
-                <div className="players">
-                    <span className="white">{game.white}</span>
-                    vs
-                    <span className="black">{game.black}</span>
-                </div>
+                <>
+                    <div className="players">
+                        <span className="white">{game.white}</span>
+                        vs
+                        <span className="black">{game.black}</span>
+                    </div>
+                    <div className="turn">
+                        {game.turn === 'w' ? 'White' : 'Black'} to move
+                    </div>
+                </>
             ) : (
                 <div className="waiting">
                     Waiting for opponent...

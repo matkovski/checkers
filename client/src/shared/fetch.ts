@@ -22,6 +22,27 @@ async function fettch(method, url, body: any = undefined) {
     });
 }
 
+export function event(url, callback) {
+    let token = localStorage.getItem('xtoken');
+    let source = new EventSource('/api' + url + '?token=' + token);
+
+    source.onopen = () => {
+        console.log('EventSource connected');
+    }
+
+    source.addEventListener('message', function (event) {
+        console.log('incoming', event.data);
+        callback(JSON.parse(event.data));
+    });
+
+    source.onerror = (error) => {
+        console.error('EventSource failed', error)
+        source.close()
+    }
+
+    return () => source.close();
+}
+
 export let get = fettch.bind(undefined, 'GET');
 export let post = fettch.bind(undefined, 'POST');
 

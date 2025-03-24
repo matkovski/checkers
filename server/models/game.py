@@ -16,7 +16,6 @@ class Game(BaseModel):
     def create(self, id: int, white: UserOut | None = None, black: UserOut | None = None, moves: str | None = None):
         moves = loads(moves) if moves else []
         position = Position.start()
-        print(f"WHAT {moves}")
 
         positions = []
         for mv in moves:
@@ -42,7 +41,7 @@ class Game(BaseModel):
     @property
     def position(self):
         if len(self.positions):
-            return self.positions[0]
+            return self.positions[-1]
         return None
 
     @property

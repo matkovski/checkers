@@ -10,7 +10,7 @@ from .dbservice import db
 class AuthService:
     async def finduser(self, token: str, refresh: bool = True):
         self._cleanup()
-        session = db.row('select id, userid, expires from sessions where id=:id', {'id': token})
+        session = db.row('select id, user, expires from sessions where id=:id', {'id': token})
         if not session:
             return None
         
@@ -20,7 +20,7 @@ class AuthService:
         
         db.run('update sessions set expires=:time where id=:id', {'id': token, 'time': time() + 24 * 3600 * 1000})
 
-        user = db.row('select * from users where id=:id', {'id': session[1]})
+        user = db.row('select * from users where login=:login', {'login': session[1]})
         if not user:
             db.run('delete from sessions where id=:id', {'id': token})
             return None
@@ -35,17 +35,13 @@ class AuthService:
             # TODO raise something good
             return None
         
-        id = db.row('select max(id) from users')
-
         created = User(
-            id = id[0] + 1 if id and id[0] else 1,
             login = user.login,
             pwd = user.pwd,
             code = str(randint(10000000000000, 100000000000000))
         )
 
-        db.query('insert into users (id, login, pwd, code) values (:id, :login, :pwd, :code)', {
-            'id': created.id,
+        db.query('insert into users (login, pwd, code) values (:login, :pwd, :code)', {
             'login': created.login,
             'pwd': self._encodepwd(created.pwd),
             'code': created.code,
@@ -60,7 +56,7 @@ class AuthService:
         if not user:
             return None
 
-        db.run('update users set code="" where id=:id', {'id': user[0]})
+        db.run('update users set code="" where login=:login', {'login': user[0]})
         
         return UserOut.make(user)
 
@@ -68,22 +64,22 @@ class AuthService:
         self._cleanup()
 
         user = db.row('select * from users where login=:login', {'login': login})
-        if not user or user[3]:
+        if not user or user[2]:
             return None
         
-        if user[2] != self._encodepwd(pwd):
+        if user[1] != self._encodepwd(pwd):
             return None
 
         user = User.make(user)
-        session = db.row('select * from sessions where userid=:id', {'id': user.id})
+        session = db.row('select * from sessions where user=:login', {'login': user.login})
 
         if session:
             return session[0]
 
         token = str(randint(10000000000000, 100000000000000))
-        db.run('insert into sessions (id, userid, expires) values (:id, :userid, :expires)', {
+        db.run('insert into sessions (id, user, expires) values (:id, :user, :expires)', {
             'id': token,
-            'userid': user.id,
+            'user': user.login,
             'expires': time() + 24 * 3600 * 1000,
         })
 

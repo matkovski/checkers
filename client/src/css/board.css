@@ -55,6 +55,21 @@
                 background: white;
             }
 
+            &.target::before {
+                z-index: 20;
+                content: '';
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                display: inline-block;
+                width: calc(var(--cell) / 4);
+                height: calc(var(--cell) / 4);
+                border: 0;
+                background: #999;
+                border-radius: 100%;
+            }
+
             > span {
                 position: absolute;
                 left: 0;
