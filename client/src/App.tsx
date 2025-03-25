@@ -1,8 +1,6 @@
 import Auth from './components/Auth';
 import GameZone from './components/GameZone';
 
-import './App.css'
-
 export default function() {
 
     return (

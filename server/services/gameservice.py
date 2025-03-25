@@ -14,7 +14,7 @@ class GameService:
 
     async def pickup(self, login: str):
         notifyother = None
-        game = db.row('select id, white, black, moves from games where white=:user or black=:user and (end="-" or end is null)', {'user': login})
+        game = db.row('select id, white, black, moves, end from games where (white=:user or black=:user) and (end="-" or end is null)', {'user': login})
         if not game:
             game = db.row('select id, white, black, moves from games where white is null and black<>:user or black is null and white<>:user', {'user': login})
             if game:

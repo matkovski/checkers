@@ -33,8 +33,8 @@ async def move(move: Move, token: Annotated[str, Header(alias = 'x-token')] = No
     if not game.white or not game.black:
         return Error(errors = ['game not started, waiting for opponent'])
     
-    if game.ended():
-        return Error(errors = ['game ended with ' + game.ended()])
+    if game.end:
+        return Error(errors = ['game ended with ' + game.end])
     
     if game.white != user.login and game.black != user.login:
         return Error(errors = ['it is not your game'])

@@ -54,7 +54,10 @@ class Game(BaseModel):
     # TODO we dont need both ended and end
     @property
     def end(self):
-        return ''
+        if len(self.position.children()):
+            return None
+        
+        return 'w' if self.turn == 'b' else 'b'
 
     def makemove(self, move: Move):
         pos = self.position
@@ -75,7 +78,7 @@ class Game(BaseModel):
         if not pos:
             self.fen = '--------------------------------/w'
 
-        field = pos.board()
+        field = pos.board
         self.fen = ''
         for y in range(8):
             for x in range(8):

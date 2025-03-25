@@ -2,12 +2,17 @@
     --black: #333;
     --cell: 3em;
 
+    @media (orientation: portrait) or (max-width: 600px) {
+        --cell: calc(10vw);
+    }
+
     display: inline-block;
     border: 0.2em solid var(--black);
     position: relative;
     border-radius: 0.4em;
     margin-bottom: 1em;
-    margin-right: 1em;
+    /* margin-left: 1em; */
+    user-select: none;
 
     &::before {
         content: '';
@@ -123,29 +128,24 @@
 
                 &[data-piece="q"], &[data-piece="Q"] {
                     &::after {
-                        z-index: 30;
-                        content: '';
+                        content: "★";
                         position: absolute;
                         left: 50%;
                         top: 50%;
                         transform: translate(-50%, -50%);
                         display: inline-block;
-                        width: calc(var(--cell) / 3);
-                        height: calc(var(--cell) / 3);
-                        border-radius: 100%;
-                        border-width: 0.2em;
-                        border-style: solid;
+                        z-index: 30;
+                        background: transparent;
+                        margin-top: -0.05rem;
                     }
+                }
 
-                    &[data-piece="q"]::after {
-                        background-color: white;
-                        border-color: var(--black);
-                    }
+                &[data-piece="q"]:after {
+                    color: white;
+                }
 
-                    &[data-piece="Q"]::after {
-                        background-color: var(--black);
-                        border-color: white;
-                    }
+                &[data-piece="Q"]:after {
+                    color: var(--black);
                 }
             }
         }

@@ -8,7 +8,7 @@ export default function Board({ game, onMove }) {
     let [pick, setPick] = useState(null);
     let [rotate] = useState(game.black === user?.login);
 
-    let gameOn = game.white && game.black && !game.ended;
+    let gameOn = game.white && game.black && game.end === '-';
     let interactive = gameOn && (game.turn === 'w') === (game.white === user.login);
     let board = game.board;
     let span = useRef(null);
@@ -39,7 +39,7 @@ export default function Board({ game, onMove }) {
             document.removeEventListener('mousemove', move);
             document.removeEventListener('mouseup', up);
         }
-    }, [pick]);
+    }, []);
 
     function getxy(ex, ey) {
         if (!bnds.current) {
@@ -114,7 +114,7 @@ export default function Board({ game, onMove }) {
 
 
     function mouseDown(event) {
-        if (!gameOn) {
+        if (!gameOn || !interactive) {
             return;
         }
 
@@ -162,7 +162,7 @@ export default function Board({ game, onMove }) {
                 <div>
                     {row.map((piece, x) => (
                         <span data-x={rotate ? 7 - x : x} data-y={rotate ? 7 - y : y} className={((x + y) % 2 ? 'odd' : 'even') + (possible.includes((rotate ? 7 - x : x) + '/' + (rotate ? 7 - y : y)) ? ' target' : '')} onClick={pickTarget}>
-                            <label>{x}/{y}</label>
+                            {/* <label>{x}/{y}</label> */}
                             {piece === '-' || <span data-piece={piece} onMouseDown={mouseDown}></span>}
                         </span>
                     ))}

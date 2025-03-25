@@ -1,19 +1,35 @@
-.players {
-    margin-top: 1rem;
+.game {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 
-    span:first-child {
-        margin-right: 0.5em;
+    .players {
+        margin-top: 1rem;
+    
+        span:first-child {
+            margin-right: 0.5em;
+        }
+    
+        span:last-child {
+            margin-left: 0.5em;
+        }
+    }
+    
+    .turn {
+        margin-top: 1rem;
+    }
+    
+    .ended {
+        margin-top: 1rem;
+        cursor: pointer;
+    }
+    
+    .waiting {
+        margin-top: 1rem;
     }
 
-    span:last-child {
-        margin-left: 0.5em;
+    .board-area {
+        flex: 1;
+        place-content: center;
     }
-}
-
-.turn {
-    margin-top: 1rem;
-}
-
-.waiting {
-    margin-top: 1rem;
 }

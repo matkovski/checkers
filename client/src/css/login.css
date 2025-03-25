@@ -6,6 +6,7 @@ form.login {
         width: 100%;
         display: block;
         margin-bottom: 1em;
+        outline: 0;
 
         border: 0.2em solid black;
         border-radius: 0;

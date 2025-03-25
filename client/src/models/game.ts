@@ -28,6 +28,14 @@ export default class Game {
         return this.position.board.map(r => r.slice()) || [];
     }
 
+    public get end() {
+        if (this.position.children.length) {
+            return '-';
+        }
+
+        return this.position.turn === 'w' ? 'b' : 'w';
+    }
+
     constructor(white?: string, black?: string, positions?: Position[]) {
         this.white = white || undefined;
         this.black = black || undefined;
@@ -37,10 +45,6 @@ export default class Game {
 
     public get turn() {
         return this.position.turn;
-    }
-
-    public get ended() {
-        return !this.possibleMoves.length;
     }
 
     public get possibleMoves() {

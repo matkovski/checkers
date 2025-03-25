@@ -99,8 +99,10 @@ export default class Position {
                 moves.push(new Move([new Movement(pc, x, y, x + dx, y + dy)]));
             }
     
-            if (enemies.includes(this.field[y + dy][x + dx]) && this.field[y + dy * 2][x + dx * 2] === '-') {
-                moves.push(new Move([new Movement(pc, x, y, x + dx * 2, y + dy * 2, this.field[y + dy][x + dx])]));
+            if (x + dx * 2 >= 0 && x + dx * 2 <= 7 && y + dy * 2 >= 0 && y + dy * 2 <= 7) {
+                if (enemies.includes(this.field[y + dy][x + dx]) && this.field[y + dy * 2][x + dx * 2] === '-') {
+                    moves.push(new Move([new Movement(pc, x, y, x + dx * 2, y + dy * 2, this.field[y + dy][x + dx])]));
+                }
             }
         }
 
@@ -115,7 +117,7 @@ export default class Position {
                 }
 
                 if (this.field[y + dy * i][x + dx * i] === '-') {
-                    moves.push(new Move([new Movement(pc, x, y, x + dx * 1, y + dy * 1)]));
+                    moves.push(new Move([new Movement(pc, x, y, x + dx * i, y + dy * i)]));
                 }
 
                 if (x + dx * (i + 1) < 0 || x + dx * (i + 1) > 7 || y + dy * (i + 1) < 0 || y + dy * (i + 1) > 7) {

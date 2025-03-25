@@ -1,12 +1,78 @@
+body, html {
+    width: 100%;
+    height: 100%;
+}
+
 body {
     margin: 0;
     display: flex;
-    min-width: 320px;
-    min-height: 100vh;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 * {
     box-sizing: border-box;
+}
+
+#root {
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem;
+    text-align: center;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    
+    h1 {
+        font-family: "Bungee Shade";
+        display: block;
+        font-size: 3em;
+        margin: 0 0 1rem 0;
+        text-align: center;
+    }
+}
+
+@media (orientation: landscape) and (min-width: 600px) {
+    #root {
+        max-width: 600px;
+    }
+}
+
+.logo {
+    height: 6em;
+    padding: 1.5em;
+    will-change: filter;
+    transition: filter 300ms;
+}
+.logo:hover {
+    filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+    filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    a:nth-of-type(2) .logo {
+        animation: logo-spin infinite 20s linear;
+    }
+}
+
+.card {
+    padding: 2em;
+}
+
+.read-the-docs {
+    color: #888;
 }
 
 @media (prefers-color-scheme: light) {
@@ -16,15 +82,6 @@ body {
 
     button {
         background-color: #f9f9f9;
-    }
-}
-#root {
-    flex: 1;
-    
-    h1 {
-        font-family: "Bungee Shade";
-        display: block;
-        font-size: 3em;
     }
 }
 
