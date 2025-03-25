@@ -1,12 +1,7 @@
-import {useState, useContext, useRef} from 'react';
-
 import {games} from '../services/games';
-import {UserContext} from '../services/auth';
 import Board from './Board';
 
 export default function Game({ game }) {
-    let user = useContext(UserContext);
-
     if (!game) {
         return (
             <>
@@ -16,16 +11,18 @@ export default function Game({ game }) {
     }
 
     let gameOn = game.white && game.black;
-    let userToMove = game.turn === 'w' ? game.white : game.black;
-    let mymove = user.login === userToMove;
 
-    async function makeMove(move) {
-        let ok = await games.makeMove(move);
+    function makeMove(move) {
+        games.makeMove(move);
+    }
+
+    function restart() {
+        games.restart();
     }
 
     return (
         <>
-            <Board moving={gameOn ? mymove : false} game={game} onMove={makeMove}/>
+            <Board game={game} onMove={makeMove}/>
             {gameOn ? (
                 <>
                     <div className="players">
@@ -33,9 +30,15 @@ export default function Game({ game }) {
                         vs
                         <span className="black">{game.black}</span>
                     </div>
-                    <div className="turn">
-                        {game.turn === 'w' ? 'White' : 'Black'} to move
-                    </div>
+                    {game.ended ? (
+                        <a className="ended" onClick={restart}>
+                            Game ended. Click to start another.
+                        </a>
+                    ) : (
+                        <div className="turn">
+                            {game.turn === 'w' ? 'White' : 'Black'} to move
+                        </div>
+                    )}
                 </>
             ) : (
                 <div className="waiting">

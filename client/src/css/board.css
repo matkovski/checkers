@@ -70,6 +70,14 @@
                 border-radius: 100%;
             }
 
+            > label {
+                position: absolute;
+                left: 0.2rem;
+                top: 0.2rem;
+                font-size: 0.4rem;
+                color: white;
+            }
+
             > span {
                 position: absolute;
                 left: 0;
@@ -140,6 +148,16 @@
                     }
                 }
             }
+        }
+    }
+
+    &.interactive {
+        > div > span:hover {
+            opacity: 0.8;
+        }
+
+        > div > span > span {
+            cursor: pointer;
         }
     }
 }

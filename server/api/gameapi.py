@@ -48,6 +48,16 @@ async def move(move: Move, token: Annotated[str, Header(alias = 'x-token')] = No
     
     return await games.makemove(game, move)
 
+@router.get('/restart')
+async def restart(token: Annotated[str, Header(alias = 'x-token')] = None):
+    user = await auth.finduser(token)
+    if not user:
+        return Error(errors = ['not authenticated'])
+
+    game = await games.restart(user.login)
+    return game
+
+
 @router.get('/events')
 async def events(token: str):
     user = await auth.finduser(token)

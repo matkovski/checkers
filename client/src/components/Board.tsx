@@ -1,17 +1,26 @@
-import {useContext, useRef, useState} from 'react';
+import {useContext, useRef, useState, useEffect} from 'react';
 
 import {UserContext} from '../services/auth';
-import {Move, Movement} from '../models/move';
 
-export default function Board({ moving, game, onMove }) {
+export default function Board({ game, onMove }) {
     let user = useContext(UserContext);
     let root = useRef(null);
     let [pick, setPick] = useState(null);
+    let [rotate] = useState(game.black === user?.login);
 
+    let gameOn = game.white && game.black && !game.ended;
+    let interactive = gameOn && (game.turn === 'w') === (game.white === user.login);
     let board = game.board;
-    let rotate = game.black === user?.login;
+    let span = useRef(null);
+    let ignoreClick = useRef(false);
+    let bnds = useRef(null);
+    let x0 = useRef(undefined);
+    let y0 = useRef(undefined);
+    let sx = useRef(undefined);
+    let sy = useRef(undefined);
+    
     if (rotate) {
-        board = board.reverse().map(r => r.reverse());
+        board = board.slice().reverse().map(r => r.reverse());
     }
 
     let possible = pick ? game.possibleMoves.reduce((all, move) => {
@@ -23,77 +32,107 @@ export default function Board({ moving, game, onMove }) {
         return all;
     }, []) : [];
 
-    let span;
-    let piece;
+    useEffect(() => {
+        document.addEventListener('mousemove', move);
+        document.addEventListener('mouseup', up);
+        return () => {
+            document.removeEventListener('mousemove', move);
+            document.removeEventListener('mouseup', up);
+        }
+    }, [pick]);
 
-    // TODO multiple movements moves
-
-    function mouseDown(event) {
-        span = event.target;
-        piece = span.getAttribute('data-piece');
-        if (!piece) {
+    function getxy(ex, ey) {
+        if (!bnds.current) {
             return;
         }
 
-        let bnds = span.getBoundingClientRect();
         let brd = root.current.getBoundingClientRect();
-        let x0 = event.clientX;
-        let y0 = event.clientY;
-        let [sx, sy] = getxy(x0, y0);
+        let xx = Math.floor((bnds.current.left + bnds.current.width / 2 + ex - x0.current - brd.left) / bnds.current.width);
+        let yy = Math.floor((bnds.current.top + bnds.current.height / 2 + ey - y0.current - brd.top) / bnds.current.height);
 
-        function getxy(ex, ey) {
-            let xx = Math.floor((bnds.left + bnds.width / 2 + ex - x0 - brd.left) / bnds.width);
-            let yy = Math.floor((bnds.top + bnds.height / 2 + ey - y0 - brd.top) / bnds.height);
-
-            if (rotate) {
-                xx = 7 - xx;
-                yy = 7 - yy;
-            }
-
-            return [xx, yy];
+        if (rotate) {
+            xx = 7 - xx;
+            yy = 7 - yy;
         }
 
-        function move(e) {
-            let x = e.clientX - x0;
-            let y = e.clientY - y0;
+        return [xx, yy];
+    }
 
-            span.style.left = x + 'px';
-            span.style.top = y + 'px';
-        };
+    function move(e) {
+        if (!span.current) {
+            return;
+        }
 
-        function up(e) {
+        let x = e.clientX - x0.current;
+        let y = e.clientY - y0.current;
+        let farEnough = Math.sqrt(x ** 2 + y ** 2) > 10;
+
+        if (!pick && farEnough) {
+            setPick([sx.current, sy.current]);
+            ignoreClick.current = true;
+        }
+
+        span.current.style.left = x + 'px';
+        span.current.style.top = y + 'px';
+    };
+
+    function up(e) {
+        if (!span.current) {
+            return;
+        }
+
+        if (!ignoreClick.current && !pick) {
+            setPick([sx.current, sy.current]);
+        } else {
             let [lx, ly] = getxy(e.clientX, e.clientY);
-
+    
             if (lx >= 0 && lx <= 7 && ly >= 0 && lx <= 7) {
                 let attempt = game.possibleMoves.find(move => {
                     let fst = move.movements[0];
                     let lst = move.movements[move.movements.length - 1];
-                    return fst.srcx === sx && fst.srcy === sy && lst.dstx === lx && lst.dsty === ly;
+                    return fst.srcx === sx.current && fst.srcy === sy.current && lst.dstx === lx && lst.dsty === ly;
                 });
-                // if (game.possibleMoves.some(m => m.equals(attempt))) {
                 if (attempt) {
-                    span.style.left = (lx * bnds.width) + 'px';
-                    span.style.top = (ly * bnds.height) + 'px';
+                    span.current.style.left = (lx * bnds.current.width) + 'px';
+                    span.current.style.top = (ly * bnds.current.height) + 'px';
                     onMove && onMove(attempt);
                 }
             }
-
             setPick(null);
-            span.style.left = '';
-            span.style.top = '';
+        }
 
-            span = undefined;
-            piece = undefined;
-            document.removeEventListener('mousemove', move);
-            document.removeEventListener('mouseup', up);
-        };
+        span.current.style.left = '';
+        span.current.style.top = '';
 
-        document.addEventListener('mousemove', move);
-        document.addEventListener('mouseup', up);
+        span.current = undefined;
+        bnds.current = undefined;
+        sx.current = undefined;
+        sy.current = undefined;
+        x0.current = undefined;
+        y0.current = undefined;
+    };
+
+
+    function mouseDown(event) {
+        if (!gameOn) {
+            return;
+        }
+
+        ignoreClick.current = false;
+
+        span.current = event.target;
+        if (!span.current.getAttribute('data-piece')) {
+            return;
+        }
+
+        bnds.current = span.current.getBoundingClientRect();
+        x0.current = event.clientX;
+        y0.current = event.clientY;
+        [sx.current, sy.current] = getxy(x0.current, y0.current);
     }
 
     function pickTarget(event) {
-        if (!pick) {
+        if (!gameOn || !pick) {
             return;
         }
         let cell = event.target;
@@ -105,11 +144,11 @@ export default function Board({ moving, game, onMove }) {
 
         let lx = parseInt(x, 10);
         let ly = parseInt(y, 10);
-        let [sx, sy] = pick;
+        [sx.current, sy.current] = pick;
         let attempt = game.possibleMoves.find(move => {
             let fst = move.movements[0];
             let lst = move.movements[move.movements.length - 1];
-            return fst.srcx === sx && fst.srcy === sy && lst.dstx === lx && lst.dsty === ly;
+            return fst.srcx === sx.current && fst.srcy === sy.current && lst.dstx === lx && lst.dsty === ly;
         });
         if (attempt) {
             onMove && onMove(attempt);
@@ -117,32 +156,14 @@ export default function Board({ moving, game, onMove }) {
         }
     }
 
-    function pickPiece(event) {
-        let piece = event.target;
-        if (!piece.getAttribute('data-piece')) {
-            return;
-        }
-        let parent = piece.parentNode;
-        let x = parseInt(parent.getAttribute('data-x'), 10);
-        let y = parseInt(parent.getAttribute('data-y'), 10);
-        if (rotate) {
-            x = 7 - x;
-            y = 7 - y;
-        }
-        if (pick && pick[0] === x && pick[1] === y) {
-            setPick(null);
-        } else {
-            setPick([x, y]);
-        }
-    }
-
     return (
-        <div className="board" ref={root}>
+        <div className={'board' + (interactive ? ' interactive' : '')} ref={root}>
             {board.map((row, y) => (
                 <div>
                     {row.map((piece, x) => (
-                        <span data-x={rotate ? 7 - x : x} data-y={rotate ? 7 - y : y} className={((x + y) % 2 ? 'odd' : 'even') + (possible.includes(x + '/' + y) ? ' target' : '')} onClick={pickTarget}>
-                            {piece === '-' || <span data-piece={piece} onMouseDown={mouseDown} onClick={pickPiece}></span>}
+                        <span data-x={rotate ? 7 - x : x} data-y={rotate ? 7 - y : y} className={((x + y) % 2 ? 'odd' : 'even') + (possible.includes((rotate ? 7 - x : x) + '/' + (rotate ? 7 - y : y)) ? ' target' : '')} onClick={pickTarget}>
+                            <label>{x}/{y}</label>
+                            {piece === '-' || <span data-piece={piece} onMouseDown={mouseDown}></span>}
                         </span>
                     ))}
                 </div>

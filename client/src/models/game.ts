@@ -40,7 +40,7 @@ export default class Game {
     }
 
     public get ended() {
-        return !!this.possibleMoves.length;
+        return !this.possibleMoves.length;
     }
 
     public get possibleMoves() {
