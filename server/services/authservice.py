@@ -8,7 +8,7 @@ from models.user import UserIn, User, UserOut
 from .dbservice import db
 
 class AuthService:
-    async def finduser(self, token: str, refresh: bool = True):
+    async def finduser(self, token: str):
         self._cleanup()
         session = db.row('select id, user, expires from sessions where id=:id', {'id': token})
         if not session:
@@ -71,9 +71,10 @@ class AuthService:
             return None
 
         user = User.make(user)
-        session = db.row('select * from sessions where user=:login', {'login': user.login})
+        session = db.row('select id from sessions where user=:login', {'login': user.login})
 
         if session:
+            print(f"RETURNING session[0] {session[0]} which is a {type(session[0])}")
             return session[0]
 
         token = str(randint(10000000000000, 100000000000000))
@@ -83,6 +84,7 @@ class AuthService:
             'expires': time() + 24 * 3600 * 1000,
         })
 
+        print(f"RETURNING token {token} which is a {type(token)}")
         return token
 
     async def logout(self, token: str):

@@ -1,6 +1,8 @@
 import {Piece, Color} from './constants';
 import {Move, Movement} from './move';
 
+let dirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+
 export default class Position {
     public move: Move;
     public turn: Color = 'w';
@@ -35,14 +37,13 @@ export default class Position {
     }
 
     public get children() {
-        let dirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
         let moves = [];
         this.field.forEach((row, y) => {
             row.forEach((pc, x) => {
                 if (pc === '-') {
                     return;
                 }
-                dirs.forEach(([dx, dy]) => moves.push(...this.getmoves(x, y, dx, dy)));
+                dirs.forEach(([dx, dy]) => moves.push(...this.getmoves(this.field, x, y, dx, dy)));
             });
         });
         return moves;
@@ -78,14 +79,13 @@ export default class Position {
         return new Position(move, turn, field);
     }
 
-    private getmoves(x, y, dx, dy) {
+    private getmoves(field, x, y, dx, dy, onlyTakeBy = undefined) {
         let moves = []
         if (x + dx < 0 || x + dx > 7 || y + dy < 0 || y + dy > 7) {
             return moves;
         }
 
-
-        let pc = this.field[y][x];
+        let pc = onlyTakeBy || field[y][x];
         let enemies = ['c', 'q'].includes(pc) ? ['C', 'Q'] : ['c', 'q'];
         let friends = ['c', 'q'].includes(pc) ? ['c', 'q'] : ['C', 'Q'];
         if ((pc === 'c' || pc === 'q') && this.turn === 'w' ||
@@ -95,13 +95,29 @@ export default class Position {
         }
 
         if (pc === 'c' || pc === 'C') {
-            if (this.field[y + dy][x + dx] === '-') {
-                moves.push(new Move([new Movement(pc, x, y, x + dx, y + dy)]));
+            if (!onlyTakeBy) {
+                if (field[y + dy][x + dx] === '-') {
+                    moves.push(new Move([new Movement(pc, x, y, x + dx, y + dy)]));
+                }
             }
     
             if (x + dx * 2 >= 0 && x + dx * 2 <= 7 && y + dy * 2 >= 0 && y + dy * 2 <= 7) {
-                if (enemies.includes(this.field[y + dy][x + dx]) && this.field[y + dy * 2][x + dx * 2] === '-') {
-                    moves.push(new Move([new Movement(pc, x, y, x + dx * 2, y + dy * 2, this.field[y + dy][x + dx])]));
+                if (enemies.includes(field[y + dy][x + dx]) && field[y + dy * 2][x + dx * 2] === '-') {
+                    let move = new Move([new Movement(pc, x, y, x + dx * 2, y + dy * 2, field[y + dy][x + dx])]);
+                    moves.push(move);
+
+                    let field2 = field.map(r => r.slice());
+                    field2[y + dx][x + dx] = '-';
+
+                    dirs.forEach(([ddx, ddy]) => {
+                        this.getmoves(field2, x + dx * 2, y + dy * 2, ddx, ddy, pc).forEach(e => {
+                            let cont = new Move([
+                                ...move.movements,
+                                ...e.movements,
+                            ]);
+                            moves.push(cont);
+                        })
+                    }, []);
                 }
             }
         }
@@ -112,20 +128,38 @@ export default class Position {
                 if (x + dx * i < 0 || x + dx * i > 7 || y + dy * i < 0 || y + dy * i > 7) {
                     break;
                 }
-                if (friends.includes(this.field[y + dy * i][x + dx * i])) {
+                if (friends.includes(field[y + dy * i][x + dx * i])) {
                     break;
                 }
 
-                if (this.field[y + dy * i][x + dx * i] === '-') {
-                    moves.push(new Move([new Movement(pc, x, y, x + dx * i, y + dy * i)]));
+                if (!onlyTakeBy) {
+                    if (field[y + dy * i][x + dx * i] === '-') {
+                        if (!onlyTakeBy || taken) {
+                            moves.push(new Move([new Movement(pc, x, y, x + dx * i, y + dy * i)]));
+                        }
+                    }
                 }
 
                 if (x + dx * (i + 1) < 0 || x + dx * (i + 1) > 7 || y + dy * (i + 1) < 0 || y + dy * (i + 1) > 7) {
                     break;
                 }
-                if (!taken && enemies.includes(this.field[y + dy * i][x + dx * i]) && this.field[y + dy * (i + 1)][x + dx * (i + 1)] === '-') {
+                if (!taken && enemies.includes(field[y + dy * i][x + dx * i]) && field[y + dy * (i + 1)][x + dx * (i + 1)] === '-') {
                     taken = true;
-                    moves.push(new Move([new Movement(pc, x, y, x + dx * (i + 1), y + dy * (i + 1), this.field[y + dy * i][x + dx * i])]));
+                    let move = new Move([new Movement(pc, x, y, x + dx * (i + 1), y + dy * (i + 1), field[y + dy * i][x + dx * i])]);
+                    moves.push(move);
+
+                    let field2 = field.map(r => r.slice());
+                    field2[y + dy * i][x + dx * i] = '-';
+
+                    dirs.forEach(([ddx, ddy]) => {
+                        this.getmoves(field2, x + dx * (i + 1), y + dy * (i + 1), ddx, ddy, pc).forEach(e => {
+                            let cont = new Move([
+                                ...move.movements,
+                                ...e.movements,
+                            ]);
+                            moves.push(cont);
+                        })
+                    }, []);
                 }
             }
         }

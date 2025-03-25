@@ -2,6 +2,7 @@ import {get, post, event} from '../shared/fetch';
 
 import Game from '../models/game';
 import Move from '../models/move';
+import Position from '../models/position';
 
 class Games {
     private game: Game;
@@ -12,7 +13,27 @@ class Games {
 
         event('/game/events', {
             game: game => {
+                game = {
+                    "id": 1,
+                    "white": "another",
+                    "black": "login",
+                    "positions": [{
+                        "move": null,
+                        "turn": "w",
+                        "field": [
+                            ["-", "-", "-", "-", "-", "-", "-", "-"],
+                            ["-", "-", "-", "-", "-", "-", "-", "-"],
+                            ["-", "-", "-", "c", "-", "-", "-", "-"],
+                            ["-", "-", "-", "-", "-", "-", "-", "-"],
+                            ["-", "-", "-", "c", "-", "-", "-", "-"],
+                            ["-", "-", "-", "-", "-", "-", "-", "-"],
+                            ["-", "Q", "-", "-", "-", "-", "-", "-"],
+                            ["-", "-", "-", "-", "-", "-", "-", "-"],
+                        ]
+                    }]
+                }
                 window['game'] = this.game = Game.parse(game);
+                this.game.positions = [Position.parse(game.positions[0])];
                 this.callbacks.forEach(c => c(this.game));
             },
             move: move => {
