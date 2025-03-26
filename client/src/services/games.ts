@@ -20,7 +20,7 @@ class Games {
                 if (!this.game) {
                     throw 'MOVE BUT NOT GAME!';
                 }
-                this.game = this.game.makeMove(Move.parse(move));
+                window['game'] = this.game = this.game.makeMove(Move.parse(move));
                 this.callbacks.forEach(c => c(this.game));
             }
         });

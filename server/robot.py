@@ -18,8 +18,6 @@ async def login():
     print(f'Log in {rq}')
     rs = rq.json()
     if 'errors' in rs or 'detail' in rs:
-        print('Could not log in')
-        print(rs)
         rq = requests.post(root + '/auth/register', json = user, headers = {'Content-type': 'application/json'})
         rs = rq.json()
 
@@ -86,12 +84,19 @@ async def play(token):
             
             move = None
             value = -10000 if color == 'w' else 10000
+            bottoms = []
+            tops = []
             for pos in children:
-                if color == 'b' and pos.top2 < value or color == 'w' and pos.bottom2 > value:
-                    value = pos.bottom2 if color == 'b' else pos.top2
+                bottoms.append(pos.bottom2)
+                tops.append(pos.top2)
+                value2 = pos.top2 if color == 'b' else pos.bottom2
+                if color == 'b' and value2 < value or color == 'w' and value2 > value:
+                    value = value2
                     move = pos.move
             
             print(f'Moving {move} with value {value}')
+            print(f'bottoms are {bottoms}')
+            print(f'tops are {tops}')
 
             rq = requests.post(url = root + '/game/move', json = loads(dumps(move, default=vars)), headers = {'Content-type': 'application/json', 'X-Token': token})
             rs = rq.json()

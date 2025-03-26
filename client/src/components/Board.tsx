@@ -19,6 +19,24 @@ export default function Board({ game, onMove }) {
     let sx = useRef(undefined);
     let sy = useRef(undefined);
     let color = game.white === user.login ? 'w' : 'b';
+    let lastmove;
+
+    if (game.position?.move && root.current) {
+        let w = root.current.querySelector('[data-x]').clientWidth;
+        let f = game.position.move.movements[0];
+        let l = game.position.move.movements[game.position.move.movements.length - 1];
+        let angle = Math.atan2(l.dsty - f.srcy, l.dstx - f.srcx);
+        let length = Math.sqrt((l.dsty - f.srcy) ** 2 + (l.dstx - f.srcx) ** 2);
+        let x = (rotate ? 7 - f.srcx : f.srcx) * w;
+        let y = (rotate ? 7 - f.srcy : f.srcy) * w;
+        lastmove = {
+            left: (x + w / 2) + 'px',
+            top: (y + w / 2) + 'px',
+            width: (length * w) + 'px',
+            height: '1px',
+            transform: 'rotate(' + ((rotate ? angle + Math.PI : angle) * 180 / Math.PI) + 'deg)',
+        }
+    }
     
     if (rotate) {
         board = board.slice().reverse().map(r => r.reverse());
@@ -170,6 +188,7 @@ export default function Board({ game, onMove }) {
                     ))}
                 </div>
             ))}
+            {lastmove && <em className="lastmove" style={lastmove}></em>}
         </div>
     )
 }

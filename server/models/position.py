@@ -4,14 +4,14 @@ from .constants import Piece, Color
 from .move import Move, Movement
 
 bvalues = [
-    [0, 3, 0, 3, 0, 3, 0, 3],
-    [2, 0, 2, 0, 2, 0, 2, 0],
-    [0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 2, 0, 2, 0, 1, 0],
-    [0, 2, 0, 4, 0, 4, 0, 2],
-    [3, 0, 6, 0, 6, 0, 3, 0],
-    [0, 5, 0, 8, 0, 8, 0, 5],
-    [5, 0, 9, 0, 9, 0, 6, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 2, 2, 2, 2, 2, 2, 1],
+    [1, 2, 3, 3, 3, 3, 2, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 2, 3, 3, 3, 3, 2, 1],
+    [1, 2, 2, 2, 2, 2, 2, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
 ]
 wvalues = [row[::-1] for row in bvalues[::-1]]
 
@@ -82,7 +82,7 @@ class Position(BaseModel):
 
     @property
     def top2(self):
-        return max(-1000000000, *[p.value for p in self.children()]);
+        return max(-1000000000, *[p.value for p in self.children()])
 
 
     @property

@@ -76,6 +76,7 @@
             }
 
             > label {
+                display: none;
                 position: absolute;
                 left: 0.2rem;
                 top: 0.2rem;
@@ -163,5 +164,14 @@
         > div > span > span {
             cursor: pointer;
         }
+    }
+
+    .lastmove {
+        display: none;
+        position: absolute;
+        /* display: block; */
+        background: green;
+        transform-origin: 0 0;
+        margin: 5px 0 0 5px;
     }
 }

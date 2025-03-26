@@ -4,14 +4,14 @@ import {Move, Movement} from './move';
 let dirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 
 let bvalues = [
-    [0, 3, 0, 3, 0, 3, 0, 3],
-    [2, 0, 2, 0, 2, 0, 2, 0],
-    [0, 1, 0, 1, 0, 1, 0, 1],
-    [1, 0, 2, 0, 2, 0, 1, 0],
-    [0, 2, 0, 4, 0, 4, 0, 2],
-    [3, 0, 6, 0, 6, 0, 3, 0],
-    [0, 5, 0, 8, 0, 8, 0, 5],
-    [5, 0, 9, 0, 9, 0, 6, 0],
+    [1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 2, 2, 2, 2, 2, 2, 1],
+    [1, 2, 3, 3, 3, 3, 2, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 2, 3, 4, 4, 3, 2, 1],
+    [1, 2, 3, 3, 3, 3, 2, 1],
+    [1, 2, 2, 2, 2, 2, 2, 1],
+    [1, 1, 1, 1, 1, 1, 1, 1],
 ]
 let wvalues = bvalues.slice().reverse().map(r => r.slice().reverse());
 
@@ -196,6 +196,10 @@ export default class Position {
 
                     dirs.forEach(([ddx, ddy]) => {
                         this.getmoves(field2, x + dx * (i + 1), y + dy * (i + 1), ddx, ddy, pc).forEach(e => {
+                            if (taken) {
+                                return;
+                            }
+                            taken = true;
                             let cont = new Move([
                                 ...move.movements,
                                 ...e.movements,
