@@ -49,12 +49,12 @@ class Game(BaseModel):
         return self.position.turn
 
     def ended(self):
-        return self.position.children()
+        return self.position.possiblemoves()
 
     # TODO we dont need both ended and end
     @property
     def end(self):
-        if len(self.position.children()):
+        if len(self.position.possiblemoves()):
             return None
         
         return 'w' if self.turn == 'b' else 'b'

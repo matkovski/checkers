@@ -18,19 +18,20 @@ export default function Board({ game, onMove }) {
     let y0 = useRef(undefined);
     let sx = useRef(undefined);
     let sy = useRef(undefined);
+    let color = game.white === user.login ? 'w' : 'b';
     
     if (rotate) {
         board = board.slice().reverse().map(r => r.reverse());
     }
 
-    let possible = pick ? game.possibleMoves.reduce((all, move) => {
-        let first = move.movements[0];
-        let last = move.movements[move.movements.length - 1];
+    let possible = pick ? game.children.reduce((all, pos) => {
+        let first = pos.move.movements[0];
+        let last = pos.move.movements[pos.move.movements.length - 1];
         if (first.srcx === pick[0] && first.srcy === pick[1]) {
-            all.push(last.dstx + '/' + last.dsty);
+            all[last.dstx + '/' + last.dsty] = [pos.value, color === 'w' ? pos.bottom2 : pos.top2];
         }
         return all;
-    }, []) : [];
+    }, {}) : {};
 
     useEffect(() => {
         document.addEventListener('mousemove', move);
@@ -161,8 +162,9 @@ export default function Board({ game, onMove }) {
             {board.map((row, y) => (
                 <div>
                     {row.map((piece, x) => (
-                        <span data-x={rotate ? 7 - x : x} data-y={rotate ? 7 - y : y} className={((x + y) % 2 ? 'odd' : 'even') + (possible.includes((rotate ? 7 - x : x) + '/' + (rotate ? 7 - y : y)) ? ' target' : '')} onClick={pickTarget}>
+                        <span data-x={rotate ? 7 - x : x} data-y={rotate ? 7 - y : y} className={((x + y) % 2 ? 'odd' : 'even') + (possible[(rotate ? 7 - x : x) + '/' + (rotate ? 7 - y : y)] ? ' target' : '')} onClick={pickTarget}>
                             {/* <label>{x}/{y}</label> */}
+                            {possible[(rotate ? 7 - x : x) + '/' + (rotate ? 7 - y : y)] && <label>{possible[(rotate ? 7 - x : x) + '/' + (rotate ? 7 - y : y)].join('/')}</label>}
                             {piece === '-' || <span data-piece={piece} onMouseDown={mouseDown}></span>}
                         </span>
                     ))}

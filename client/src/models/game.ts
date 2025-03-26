@@ -29,7 +29,7 @@ export default class Game {
     }
 
     public get end() {
-        if (this.position.children.length) {
+        if (this.position.possibleMoves.length) {
             return '-';
         }
 
@@ -47,8 +47,12 @@ export default class Game {
         return this.position.turn;
     }
 
-    public get possibleMoves() {
+    public get children() {
         return this.position.children;
+    }
+
+    public get possibleMoves() {
+        return this.position.possibleMoves;
     }
 
     public pieceAt(x: number, y: number) {

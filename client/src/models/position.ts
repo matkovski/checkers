@@ -3,6 +3,18 @@ import {Move, Movement} from './move';
 
 let dirs = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
 
+let bvalues = [
+    [0, 3, 0, 3, 0, 3, 0, 3],
+    [2, 0, 2, 0, 2, 0, 2, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 2, 0, 2, 0, 1, 0],
+    [0, 2, 0, 4, 0, 4, 0, 2],
+    [3, 0, 6, 0, 6, 0, 3, 0],
+    [0, 5, 0, 8, 0, 8, 0, 5],
+    [5, 0, 9, 0, 9, 0, 6, 0],
+]
+let wvalues = bvalues.slice().reverse().map(r => r.slice().reverse());
+
 export default class Position {
     public move: Move;
     public turn: Color = 'w';
@@ -36,7 +48,7 @@ export default class Position {
         return this.field;
     }
 
-    public get children() {
+    public get possibleMoves() {
         let moves = [];
         this.field.forEach((row, y) => {
             row.forEach((pc, x) => {
@@ -47,6 +59,37 @@ export default class Position {
             });
         });
         return moves;
+    }
+
+    public get children() {
+        return this.possibleMoves.map(move => this.makeMove(move));
+    }
+
+    public get value() {
+        let result = 0;
+        this.field.forEach((row, y) => {
+            row.forEach((pc, x) => {
+                if (pc === '-') {
+                    return;
+                }
+                let coef = pc === 'q' || pc === 'Q' ? 10 : 1;
+                if (pc === 'C' || pc === 'Q') {
+                    result += coef * wvalues[y][x];
+                } else {
+                    result -= coef * bvalues[y][x];
+                }
+            });
+        });
+
+        return result;
+    }
+
+    public get bottom2() {
+        return Math.min(Infinity, ...this.children.map(p => p.value));
+    }
+
+    public get top2() {
+        return Math.max(-Infinity, ...this.children.map(p => p.value));
     }
 
     public pieceAt(x: number, y: number) {
@@ -107,7 +150,7 @@ export default class Position {
                     moves.push(move);
 
                     let field2 = field.map(r => r.slice());
-                    field2[y + dx][x + dx] = '-';
+                    field2[y + dy][x + dx] = '-';
 
                     dirs.forEach(([ddx, ddy]) => {
                         this.getmoves(field2, x + dx * 2, y + dy * 2, ddx, ddy, pc).forEach(e => {

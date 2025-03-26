@@ -12,7 +12,7 @@ class DbService:
         try:
             cursor.execute('select count(*) from games')
         except:
-            cursor.execute('create table sessions (id str primary key, user varchar(100), expires float)')
+            cursor.execute('create table sessions (id varchar(100) primary key, user varchar(100), expires float)')
             cursor.execute('create table users (login varchar(100) primary key, pwd varchar(100), code varchar(100))')
             cursor.execute('create table games (id integer primary key, white varchar(100), black varchar(100), end char(1), moves text)')
         

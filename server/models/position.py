@@ -3,6 +3,18 @@ from pydantic import BaseModel
 from .constants import Piece, Color
 from .move import Move, Movement
 
+bvalues = [
+    [0, 3, 0, 3, 0, 3, 0, 3],
+    [2, 0, 2, 0, 2, 0, 2, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 2, 0, 2, 0, 1, 0],
+    [0, 2, 0, 4, 0, 4, 0, 2],
+    [3, 0, 6, 0, 6, 0, 3, 0],
+    [0, 5, 0, 8, 0, 8, 0, 5],
+    [5, 0, 9, 0, 9, 0, 6, 0],
+]
+wvalues = [row[::-1] for row in bvalues[::-1]]
+
 def steps(x, y, dx, dy):
     x += dx
     y += dy
@@ -33,7 +45,7 @@ class Position(BaseModel):
         position.turn = 'w'
         return position
 
-    def children(self):
+    def possiblemoves(self):
         dirs = ((-1, -1), (-1, 1), (1, -1), (1, 1))
         moves = []
         for y, row in enumerate(self.field):
@@ -44,6 +56,34 @@ class Position(BaseModel):
                     moves += self.getmoves(x, y, dx, dy)
 
         return moves
+    
+    def children(self):
+        moves = self.possiblemoves()
+        return [self.makemove(move) for move in moves]
+    
+    @property
+    def value(self):
+        result = 0
+        for y, row in enumerate(self.field):
+            for x, pc in enumerate(row):
+                if pc == '-':
+                    continue
+                coef = 10 if pc == 'q' or pc == 'Q' else 1
+                if pc == 'C' or pc == 'Q':
+                    result += coef * wvalues[y][x]
+                else:
+                    result -= coef * bvalues[y][x]
+
+        return result
+    
+    @property
+    def bottom2(self):
+        return min(1000000000, *[p.value for p in self.children()])
+
+    @property
+    def top2(self):
+        return max(-1000000000, *[p.value for p in self.children()]);
+
 
     @property
     def board(self):
